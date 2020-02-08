@@ -1,0 +1,29 @@
+---
+ - name: Install and configure in hosts
+   hosts: node4.example.com #change the hosts accroding to your need
+   vars:
+     firewall: firewalld
+   tasks:
+     - name: Include the vriable file
+       include_vars: vars/main.yml
+     - name: Include the tasks file
+       include_vars: tasks/main.yml
+     - name: Install the firewall 
+       yum: 
+         name: "{{ firewall }}"
+         state: latest
+     - name: Start the firewall
+       service:
+         name: "{{ firewall }}"
+         state: started
+         enabled: true
+     - name: Open the port for the web server
+       firewalld:
+         service: http
+         state: enabled
+         immedaite: true
+         permanent: true
+     - name: Create inden.html
+       copy:
+         content: "{{ ansible_fqdn }}({{ ansible_default_ipv4.address }}) has been customized by ansible\n"
+         dest: "{{ web_root }}/index.html"
